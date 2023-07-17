@@ -92,13 +92,8 @@ def create_practice_set(n=20, t=35, difficulty = "all", history = "no", past_que
     questions = list()
     for topic in topics:
         q = create_question(topic, difficulty)
-        # avoid duplicate questions in one practice set
-        while q in questions:
-            q = create_question(topic, difficulty)
-        # avoid questions already done in the past
-        while q in past_questions:
-            q = create_question(topic, difficulty)
-            while q in questions:
+        # avoid duplicate questions, also considering past questions
+        while q in past_questions or q in questions:
                 q = create_question(topic, difficulty)
         # append new questions
         questions.append(q)
@@ -112,6 +107,7 @@ def create_practice_set(n=20, t=35, difficulty = "all", history = "no", past_que
                 file.write(q+"\n")
         print("Questions added to 5lb_question_history.txt.")
     # start timer
+    input("Hit enter to start.")
     countdown(t)
 # %%
 n = input("How many questions do you want? ")
