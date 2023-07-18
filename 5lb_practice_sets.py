@@ -2,6 +2,7 @@
 import datetime
 import os
 import random
+import re
 import time
 # %% store number of questions per chapter
 question_counts = {
@@ -30,7 +31,6 @@ question_counts = {
     "advanced_quant": 42
 }
 # %% timer function
-
 # Create class that acts as a countdown
 def countdown(m):
  
@@ -67,8 +67,10 @@ def choose_by_difficulty(n, topic, difficulty = "all"):
         return(range(n)[round(n*0.75):n-1])
 # %%
 def create_question(topic, difficulty):
-    n = random.choice(choose_by_difficulty(question_counts[topic], topic, difficulty))+1
-    q = topic + "_" + str(n)
+    n = str(random.choice(choose_by_difficulty(question_counts[topic], topic, difficulty))+1)
+    if len(n) == 1:
+        n = "0" + n
+    q = topic + "_" + n
     return(q)
 # %%
 def create_practice_set(n=20, t=35, difficulty = "all", history = "no", past_questions = []):
@@ -88,7 +90,9 @@ def create_practice_set(n=20, t=35, difficulty = "all", history = "no", past_que
         list(question_counts.keys()), 
         k = n, 
         weights = weights)
-    topics.sort(key=lambda x: list(question_counts.keys()).index(x)) # to reduce time spent on the search
+    # sort by order of topics in the book
+    # topics = sorted(topics, key = lambda x: list(question_counts.keys()).index(x))
+    # topics.sort(key=lambda x: list(question_counts.keys()).index(x)) # to reduce time spent on the search
     questions = list()
     for topic in topics:
         q = create_question(topic, difficulty)
@@ -97,6 +101,9 @@ def create_practice_set(n=20, t=35, difficulty = "all", history = "no", past_que
                 q = create_question(topic, difficulty)
         # append new questions
         questions.append(q)
+    # define regex pattern to remove numbers from a question name
+    pattern = r'[0-9]'
+    questions = sorted(questions, key = lambda x: (list(question_counts.keys()).index(re.sub(pattern, '', x)[:-1]), x.split("_")[-1]))
     for i, q in enumerate(questions):
         print(str(i+1) + ") " + q)
     if history[0].lower() == "y":
